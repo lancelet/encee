@@ -1,0 +1,124 @@
+<file>                    ::= <startline-opt> <program>
+
+<program>                 ::= <line> <program>
+                           |  ε
+
+<line>                    ::= <block-delete-opt> <line-parts> <newline>
+<line-parts>              ::= <command> <line-parts>
+                           |  ε
+
+<block-delete-opt>        ::= /
+                           |  ε
+
+<command>                 ::= <word>
+                           |  <setvn>
+                           |  <ifgoto>
+                           |  <ifthen>
+                           |  <goto>
+                           |  <whiledo>
+
+<expression-bkt>          ::= [ <expression> ]
+<expression>              ::= <power_exp>
+
+<additive_exp>            ::= <mult_exp>
+                           |  <additive_exp> + <mult_exp>
+                           |  <additive_exp> - <mult_exp>
+                           |  <additive_exp> or <mult_exp>
+                           |  <additive_exp> xor <mult_exp>
+                           |  <additive_exp> and <mult_exp>
+
+<mult_exp>                ::= <power_exp>
+                           |  <mult_exp> * <power_exp>
+                           |  <mult_exp> / <power_exp>
+                           |  <mult_exp> mod <power_exp>
+
+<power_exp>               ::= <primary_exp>
+                           |  <power_exp> ** <primary_exp>
+
+<primary_exp>             ::= <power_exp>
+                           |  <unary_exp>
+
+<unary_exp>               ::= atan2
+                           |  unary_op
+<atan2>                   ::= atan <expression-bkt> / <expression-bkt>
+<unary_op>                ::= <unary_fn> <expression-bkt>
+<unary_fn>                ::= abs
+                           |  acos
+                           |  asin
+                           |  atan
+                           |  cos
+                           |  exp
+                           |  fix
+                           |  fup
+                           |  ln
+                           |  round
+                           |  sin
+                           |  sqrt
+                           |  tan
+
+<ifgoto>                  ::= if <expression-bkt> goto <number>
+
+<ifthen>                  ::= if <expression-bkt> then <program-parts>  # TODO
+
+<goto>                    ::= goto <number>
+
+<whiledo>                 ::= while <expression-bkt> do <doid>
+                                <program-parts>
+                              end # TODO
+<doid>                    ::= [1-3]
+
+<setvn>                   ::= setvn <number> [ <setvnnames> ]
+<setvnnames>              ::= <pointer_name>
+                           |  <pointer_name> , <setvnnames>
+
+<word>                    ::= <word-char> <number>
+
+<number>                  ::= <number-literal>
+                           |  <expression-bkt>
+                           |  <pointer>
+
+<pointer>                 ::= # <pointer-label>
+<pointer-label>           ::= <number>
+                           |  <pointer-name>
+<pointer-name>            ::= <pointer-name-char> <pointer-name>
+                           |  ε
+<pointer-name-char>       ::= <alpha>
+                           |  _
+
+<word-char>               ::= <alpha> | *
+
+<number-literal>          ::= <integer>
+                           |  <rational>
+<integer>                 ::= <integer> <digit>
+                           |  <digit>
+<integer-opt>             ::= <integer>
+                           |  ε
+<sign-opt>                ::= <sign>
+                           |  ε
+<rational>                ::= <sign-opt> <rational-ensure-zero>
+<rational-ensure-zero>    ::= <rational-zero-before>
+                           |  <rational-zero-after>
+<rational-zero-before>    ::= <integer> . <integer-opt>
+<rational-zero-after>     ::= <integer-opt> . <integer>
+
+<semi-comment>            ::= ; <not-newlines> <newline> 
+
+<paren-comment>           ::= ( <in-paren-comments> )
+<in-paren-comment>        ::= [^)]
+<in-paren-comments>       ::= <in-paren-comment> <in-paren-comments>
+                           |  ε
+
+<not-newlines>            ::= <not-newline> <not-newlines>
+                           |  ε
+
+<startline-opt>           ::= % <newline>
+
+<lower>                   ::= [a-z]
+<upper>                   ::= [A-Z]
+<alpha>                   ::= <upper> | <lower>
+<digit>                   ::= [0-9]
+<space>                   ::= ' ' | '\t'
+<sign>                    ::= + | -
+
+<newline>                 ::= '\n'   # strictly UNIX newlines ONLY
+<not-newline>             ::= [^\n]
