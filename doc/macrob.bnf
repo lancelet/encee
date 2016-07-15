@@ -37,6 +37,7 @@
 
 <primary_exp>             ::= <power_exp>
                            |  <unary_exp>
+                           |  <number>
 
 <unary_exp>               ::= atan2
                            |  unary_op
