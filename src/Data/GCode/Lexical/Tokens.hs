@@ -4,7 +4,7 @@ module Data.GCode.Lexical.Tokens where
 
 import           Data.Scientific (Scientific)
 import           Data.Text       (Text)
-import qualified Data.Text       as T (concat, pack, singleton)
+import qualified Data.Text       as T (concat, pack)
 
 data Token
   =
@@ -15,14 +15,14 @@ data Token
   | Tok_RBracket                -- ^ ]
 
     --
-    -- Identifiers
+    -- Names (alphanumeric)
     --
-  | Tok_Id !Identifier
+  | Tok_Name !Name
 
     --
-    -- Operators
+    -- Symbolic Operators
     --
-  | Tok_Op !Char                -- ^ plus, minus, multiply, divide, hash, etc.
+  | Tok_Op !SymbolOperator      -- ^ plus, minus, multiply, divide, hash, etc.
 
     --
     -- Literals
@@ -37,9 +37,9 @@ data Token
 
   deriving (Eq, Show)
 
-data Identifier
-  = Id_Name !Text
-  | Id_Reserved !ReservedId
+data Name
+  = Name_Id !Text
+  | Name_Reserved !ReservedId
   deriving (Eq, Show)
 
 data ReservedId
@@ -50,6 +50,18 @@ data ReservedId
   | RId_While
   | RId_Do
   | RId_End
+  | RId_Or
+  | RId_And
+  | RId_Xor
+  deriving (Eq, Show)
+
+data SymbolOperator
+  = Op_Hash
+  | Op_Add
+  | Op_Sub
+  | Op_Mul
+  | Op_Div
+  | Op_Pow
   deriving (Eq, Show)
 
 renderToken :: Token -> Text
@@ -57,17 +69,17 @@ renderToken t =
   case t of
     Tok_LBracket       -> "["
     Tok_RBracket       -> "]"
-    Tok_Id x           -> renderId x
-    Tok_Op c           -> T.singleton c
+    Tok_Name x         -> renderName x
+    Tok_Op s           -> renderSymbolOperator s
     Tok_LitNumber n    -> T.pack . show $ n
     Tok_ParenComment c -> T.concat ["(", c, ")"]
     Tok_SemiComment c  -> T.concat [";", c]
 
-renderId :: Identifier -> Text
-renderId x =
+renderName :: Name -> Text
+renderName x =
   case x of
-    Id_Name n     -> n
-    Id_Reserved r -> renderReservedId r
+    Name_Id n       -> n
+    Name_Reserved r -> renderReservedId r
 
 renderReservedId :: ReservedId -> Text
 renderReservedId r =
@@ -79,3 +91,16 @@ renderReservedId r =
     RId_While -> "WHILE"
     RId_Do    -> "DO"
     RId_End   -> "END"
+    RId_Or    -> "OR"
+    RId_And   -> "AND"
+    RId_Xor   -> "XOR"
+
+renderSymbolOperator :: SymbolOperator -> Text
+renderSymbolOperator s =
+  case s of
+    Op_Hash -> "#"
+    Op_Add  -> "+"
+    Op_Sub  -> "-"
+    Op_Mul  -> "*"
+    Op_Div  -> "/"
+    Op_Pow  -> "**"

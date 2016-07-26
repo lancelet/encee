@@ -8,14 +8,15 @@ module Data.GCode.Lexical.Lexer where
 import           Data.GCode.Lexical.Position (Position (Position),
                                               Positioned (Positioned), decCol,
                                               fromSourcePos)
-import           Data.GCode.Lexical.Tokens   (Token (..))
+import           Data.GCode.Lexical.Tokens   (SymbolOperator (..), Token (..))
 
 import           Data.HashMap.Strict         (HashMap)
 import qualified Data.HashMap.Strict         as Map (fromList)
 import           Text.Megaparsec             ((<|>))
 import           Text.Megaparsec             (ErrorComponent,
                                               ShowErrorComponent, char', choice,
-                                              getPosition, label, representFail,
+                                              getPosition, label, oneOf,
+                                              representFail,
                                               representIndentation,
                                               showErrorComponent, space)
 import qualified Text.Megaparsec             as Mega (Token)
@@ -40,41 +41,37 @@ instance ShowErrorComponent LexerError where
 lexDelimiter :: Lexer s m => m (Positioned Token)
 lexDelimiter =
   choice
-  [ lexConst (symbolChar '[') Tok_LBracket
-  , lexConst (symbolChar ']') Tok_RBracket
+  [ lexConst Tok_LBracket $ symbolChar '['
+  , lexConst Tok_RBracket $ symbolChar ']'
   ]
 
-{-
-lexReservedIdentifier :: Lexer s m => m (Positioned Token)
-lexReservedIdentifier = undefined
-  where
-    reservedIdentifiers =
-      Map.fromList
-      [ ("setvn", Tok_SetVn)
-      , ("if"   , Tok_If   )
-      , ("then" , Tok_Then )
-      , ("goto" , Tok_Goto )
-      , ("while", Tok_While)
-      , ("do"   , Tok_Do   )
-      , ("end"  , Tok_End  )
-      ]
--}
+
+lexOperator :: Lexer s m => m (Positioned Token)
+lexOperator =
+  choice
+  [ lexConst (Tok_Op Op_Hash) $ symbolChar '#'
+  , lexConst (Tok_Op Op_Add)  $ symbolChar '+'
+  , lexConst (Tok_Op Op_Sub)  $ symbolChar '-'
+  , lexConst (Tok_Op Op_Mul)  $ symbolChar '*'
+  , lexConst (Tok_Op Op_Div)  $ symbolChar '/'
+  , lexConst (Tok_Op Op_Pow)  $ symbol     "**"
+  ]
 
 -------------------------------------------------------------------------------
 
 symbol :: Lexer s m => String -> m (Positioned ())
-symbol s = lexConst ((positioned . stringws') s) ()
+symbol = lexConst () . positioned . stringws'
 
 symbolChar :: Lexer s m => Char -> m (Positioned ())
 symbolChar c = symbol [c]
 
 -------------------------------------------------------------------------------
 
-lexAs :: Lexer s m => m (Positioned a) -> (a -> b) -> m (Positioned b)
-lexAs = flip (fmap . fmap)
+lexAs :: Lexer s m => (a -> b) -> m (Positioned a) -> m (Positioned b)
+lexAs = fmap . fmap
 
-lexConst :: Lexer s m => m (Positioned a) -> b -> m (Positioned b)
-lexConst lexer c = lexAs lexer (const c)
+lexConst :: Lexer s m => b -> m (Positioned a) -> m (Positioned b)
+lexConst = lexAs . const
 
 -------------------------------------------------------------------------------
 
