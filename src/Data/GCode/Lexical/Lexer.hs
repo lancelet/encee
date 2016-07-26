@@ -66,6 +66,24 @@ lexOperator =
   , lexConst Tok_Xor   $ symbol     "XOR"
   ]
 
+lexControlFlow :: Lexer s m => m (Positioned Token)
+lexControlFlow =
+  choice
+  [ lexConst Tok_If        $ symbol "IF"
+  , lexConst Tok_ElseIf    $ symbol "ELSEIF"
+  , lexConst Tok_Else      $ symbol "ELSE"
+  , lexConst Tok_EndIf     $ symbol "ENDIF"
+  , lexConst Tok_Repeat    $ symbol "REPEAT"
+  , lexConst Tok_EndRepeat $ symbol "ENDREPEAT"
+  , lexConst Tok_Do        $ symbol "DO"
+  , lexConst Tok_While     $ symbol "WHILE"
+  , lexConst Tok_EndWhile  $ symbol "ENDWHILE"
+  , lexConst Tok_Sub       $ symbol "SUB"
+  , lexConst Tok_EndSub    $ symbol "ENDSUB"
+  , lexConst Tok_Call      $ symbol "CALL"
+  , lexConst Tok_Return    $ symbol "RETURN"
+  ]
+
 -------------------------------------------------------------------------------
 
 symbol :: Lexer s m => String -> m (Positioned ())
