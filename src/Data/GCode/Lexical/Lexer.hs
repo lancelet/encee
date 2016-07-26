@@ -8,7 +8,7 @@ module Data.GCode.Lexical.Lexer where
 import           Data.GCode.Lexical.Position (Position (Position),
                                               Positioned (Positioned), decCol,
                                               fromSourcePos)
-import           Data.GCode.Lexical.Tokens   (SymbolOperator (..), Token (..))
+import           Data.GCode.Lexical.Tokens   (Token (..))
 
 import           Data.HashMap.Strict         (HashMap)
 import qualified Data.HashMap.Strict         as Map (fromList)
@@ -45,7 +45,7 @@ lexDelimiter =
   , lexConst Tok_RBracket $ symbolChar ']'
   ]
 
-
+{-
 lexOperator :: Lexer s m => m (Positioned Token)
 lexOperator =
   choice
@@ -56,6 +56,7 @@ lexOperator =
   , lexConst (Tok_Op Op_Div)  $ symbolChar '/'
   , lexConst (Tok_Op Op_Pow)  $ symbol     "**"
   ]
+-}
 
 -------------------------------------------------------------------------------
 

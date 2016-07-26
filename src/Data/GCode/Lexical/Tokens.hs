@@ -4,7 +4,7 @@ module Data.GCode.Lexical.Tokens where
 
 import           Data.Scientific (Scientific)
 import           Data.Text       (Text)
-import qualified Data.Text       as T (concat, pack)
+import qualified Data.Text       as T (concat, pack, singleton)
 
 data Token
   =
@@ -15,19 +15,48 @@ data Token
   | Tok_RBracket                -- ^ ]
 
     --
-    -- Names (alphanumeric)
+    -- Operators
     --
-  | Tok_Name !Name
+  | Tok_Hash                    -- ^ #
+  | Tok_Pow                     -- ^ **
+  | Tok_Mul                     -- ^ *
+  | Tok_Div                     -- ^ /
+  | Tok_Mod                     -- ^ MOD
+  | Tok_Plus                    -- ^ +
+  | Tok_Minus                   -- ^ -
+  | Tok_Eq                      -- ^ EQ
+  | Tok_Ne                      -- ^ NE
+  | Tok_Gt                      -- ^ GT
+  | Tok_Ge                      -- ^ GE
+  | Tok_Lt                      -- ^ LT
+  | Tok_Le                      -- ^ LE
+  | Tok_And                     -- ^ AND
+  | Tok_Or                      -- ^ OR
+  | Tok_Xor                     -- ^ XOR
 
     --
-    -- Symbolic Operators
+    -- Control Flow
     --
-  | Tok_Op !SymbolOperator      -- ^ plus, minus, multiply, divide, hash, etc.
+  | Tok_If                      -- ^ IF
+  | Tok_ElseIf                  -- ^ ELSEIF
+  | Tok_Else                    -- ^ ELSE
+  | Tok_EndIf                   -- ^ ENDIF
+  | Tok_Repeat                  -- ^ REPEAT
+  | Tok_EndRepeat               -- ^ ENDREPEAT
+  | Tok_Do                      -- ^ DO
+  | Tok_While                   -- ^ WHILE
+  | Tok_EndWhile                -- ^ ENDWHILE
+  | Tok_Sub                     -- ^ SUB
+  | Tok_EndSub                  -- ^ ENDSUB
+  | Tok_Call                    -- ^ CALL
+  | Tok_Return                  -- ^ RETURN
 
     --
     -- Literals
     --
-  | Tok_LitNumber !Scientific   -- ^ literal number
+  | Tok_WordChar !Char          -- ^ word character
+  | Tok_Number !Scientific      -- ^ literal number
+  | Tok_NamedParam !Text        -- ^ named parameter, delim by angle brackets
 
     --
     -- Comments
@@ -37,33 +66,54 @@ data Token
 
   deriving (Eq, Show)
 
-data Name
-  = Name_Id !Text
-  | Name_Reserved !ReservedId
-  deriving (Eq, Show)
 
-data ReservedId
-  = RId_SetVn
-  | RId_If
-  | RId_Then
-  | RId_Goto
-  | RId_While
-  | RId_Do
-  | RId_End
-  | RId_Or
-  | RId_And
-  | RId_Xor
-  deriving (Eq, Show)
+renderToken :: Token -> Text
+renderToken t =
+  case t of
+    --
+    Tok_LBracket  -> "["
+    Tok_RBracket  -> "]"
+    --
+    Tok_Hash      -> "#"
+    Tok_Pow       -> "**"
+    Tok_Mul       -> "*"
+    Tok_Div       -> "/"
+    Tok_Mod       -> "MOD"
+    Tok_Plus      -> "+"
+    Tok_Minus     -> "-"
+    Tok_Eq        -> "EQ"
+    Tok_Ne        -> "NE"
+    Tok_Gt        -> "GT"
+    Tok_Ge        -> "GE"
+    Tok_Lt        -> "LT"
+    Tok_Le        -> "LE"
+    Tok_And       -> "AND"
+    Tok_Or        -> "OR"
+    Tok_Xor       -> "XOR"
+    ---
+    Tok_If        -> "IF"
+    Tok_ElseIf    -> "ELSEIF"
+    Tok_Else      -> "ELSE"
+    Tok_EndIf     -> "ENDIF"
+    Tok_Repeat    -> "REPEAT"
+    Tok_EndRepeat -> "ENDREPEAT"
+    Tok_Do        -> "DO"
+    Tok_While     -> "WHILE"
+    Tok_EndWhile  -> "ENDWHILE"
+    Tok_Sub       -> "SUB"
+    Tok_EndSub    -> "ENDSUB"
+    Tok_Call      -> "CALL"
+    Tok_Return    -> "RETURN"
+    ---
+    Tok_WordChar c     -> T.singleton c
+    Tok_Number n       -> T.pack . show $ n
+    Tok_NamedParam x   -> T.concat ["<", x, ">"]
+    Tok_ParenComment x -> T.concat ["(", x, ")"]
+    Tok_SemiComment x  -> T.concat [";", x]
+    
 
-data SymbolOperator
-  = Op_Hash
-  | Op_Add
-  | Op_Sub
-  | Op_Mul
-  | Op_Div
-  | Op_Pow
-  deriving (Eq, Show)
 
+{-
 renderToken :: Token -> Text
 renderToken t =
   case t of
@@ -104,3 +154,5 @@ renderSymbolOperator s =
     Op_Mul  -> "*"
     Op_Div  -> "/"
     Op_Pow  -> "**"
+
+-}
