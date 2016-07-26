@@ -45,18 +45,26 @@ lexDelimiter =
   , lexConst Tok_RBracket $ symbolChar ']'
   ]
 
-{-
 lexOperator :: Lexer s m => m (Positioned Token)
 lexOperator =
   choice
-  [ lexConst (Tok_Op Op_Hash) $ symbolChar '#'
-  , lexConst (Tok_Op Op_Add)  $ symbolChar '+'
-  , lexConst (Tok_Op Op_Sub)  $ symbolChar '-'
-  , lexConst (Tok_Op Op_Mul)  $ symbolChar '*'
-  , lexConst (Tok_Op Op_Div)  $ symbolChar '/'
-  , lexConst (Tok_Op Op_Pow)  $ symbol     "**"
+  [ lexConst Tok_Hash  $ symbolChar '#'
+  , lexConst Tok_Pow   $ symbol     "**"
+  , lexConst Tok_Mul   $ symbolChar '*'
+  , lexConst Tok_Div   $ symbolChar '/'
+  , lexConst Tok_Mod   $ symbol     "MOD"
+  , lexConst Tok_Plus  $ symbolChar '+'
+  , lexConst Tok_Minus $ symbolChar '-'
+  , lexConst Tok_Eq    $ symbol     "EQ"
+  , lexConst Tok_Ne    $ symbol     "NE"
+  , lexConst Tok_Gt    $ symbol     "GT"
+  , lexConst Tok_Ge    $ symbol     "GE"
+  , lexConst Tok_Lt    $ symbol     "LT"
+  , lexConst Tok_Le    $ symbol     "LE"
+  , lexConst Tok_And   $ symbol     "AND"
+  , lexConst Tok_Or    $ symbol     "OR"
+  , lexConst Tok_Xor   $ symbol     "XOR"
   ]
--}
 
 -------------------------------------------------------------------------------
 
